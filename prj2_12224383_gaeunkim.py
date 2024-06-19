@@ -15,7 +15,7 @@ with open('ratings.dat', 'r') as file:  # Place ratings.dat in the same folder a
         rating_mat[user_id - 1][movie_id - 1] = rating  # Assign rating to matrix
 
 # Perform KMeans clustering
-km = KMeans(n_clusters=3, random_state=21)
+km = KMeans(n_clusters=3, random_state=21)  # random_state may be altered
 km.fit(rating_mat)  # Fit to data
 
 groups = km.predict(rating_mat)
@@ -56,10 +56,10 @@ def BC(group):
   # Get ranks by row, breaking ties by assigning the mean rank to each group
   ranks = group.rank(axis=1, method='average') - 1
 
-  BC = ranks.sum(axis=0)  # Get sum of ranks by column(by movie)
-  sorted_BC = BC.sort_values(ascending=False)
-  sorted_BC.index.name = 'Movie ID'
-  return sorted_BC
+  ranks_sum = ranks.sum(axis=0)  # Get sum of ranks by column(by movie)
+  sorted_ranks_sum = ranks_sum.sort_values(ascending=False)
+  sorted_ranks_sum.index.name = 'Movie ID'
+  return sorted_ranks_sum
 
 def CR(group):
   row_num, col_num = group.shape
@@ -82,12 +82,12 @@ def CR(group):
   T[positive > negative] = 1  # More wins
   T[positive < negative] = -1  # More losses, ties are already 0
 
-  CR = T.sum(axis=0)  # Get sum of CR by column(by movie)
+  rel_importance = T.sum(axis=0)  # Get sum of CR by column(by movie)
 
-  sorted_CR = CR.sort_values(ascending=False)
-  sorted_CR.index.name = 'Movie ID'
+  sorted_rel_importance = rel_importance.sort_values(ascending=False)
+  sorted_rel_importance.index.name = 'Movie ID'
 
-  return sorted_CR
+  return sorted_rel_importance
 
 def print_results(group):
   print("by AU:")
